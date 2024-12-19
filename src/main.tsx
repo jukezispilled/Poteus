@@ -13,7 +13,7 @@ const completionEndpoint = import.meta.env?.VITE_COMPLETION_ENDPOINT || 'http://
 import './styles.css'
 
 const AGENT_ID = 'TrollDetective.Exe' // this comes from the agentId output from running the Eliza framework, it likely will be in uuid format, i.e. '123e4567-e89b-12d3-a456-426614174000'
-const SIMLI_FACE_ID = '13fbb3e1-4489-4199-ad57-91be4a2dd38b'
+const SIMLI_FACE_ID = '21979ba1-746b-40ac-bc6f-e96dcd6af21f'
 const ELEVENLABS_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'
 
 const simliClient = new SimliClient()
