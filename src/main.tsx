@@ -13,8 +13,8 @@ const completionEndpoint = import.meta.env?.VITE_COMPLETION_ENDPOINT || 'http://
 import './styles.css'
 
 const AGENT_ID = 'TrollDetective.Exe' // this comes from the agentId output from running the Eliza framework, it likely will be in uuid format, i.e. '123e4567-e89b-12d3-a456-426614174000'
-const SIMLI_FACE_ID = '21979ba1-746b-40ac-bc6f-e96dcd6af21f'
-const ELEVENLABS_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'
+const SIMLI_FACE_ID = '12fc2352-07ad-445e-ab52-7a7d349a44ae'
+const ELEVENLABS_VOICE_ID = 'GBv7mTt0atIp3Br8iCZE'
 
 const simliClient = new SimliClient()
 
@@ -294,7 +294,7 @@ const App = () => {
   return (
     <>
       <div className='flex h-screen w-full flex-col items-center justify-center font-mono text-white'>
-        <div className='relative size-full'>
+        <div className='relative w-[30%]'>
           <video
             ref={videoRef}
             id='simli_video'
@@ -363,7 +363,7 @@ const App = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundImage: 'url(./bg.jpg)',
+          backgroundColor: 'black',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           zIndex: -1000,
