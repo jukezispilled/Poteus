@@ -51,15 +51,9 @@ const App = () => {
   const [error, setError] = useState('')
   const [_, setChatgptText] = useState('')
   const [startWebRTC, setStartWebRTC] = useState(false)
-  const [isListening, setIsListening] = useState(false)
   const cancelTokenRef = useRef<any | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<Blob[]>([])
-  const audioContextRef = useRef<any | null>(null)
-  const analyserRef = useRef<any | null>(null)
-  const microphoneRef = useRef<any | null>(null)
 
   // TODO: populate these from localStorage if roomid and useruuid are set, otherwise generate a random uuid
   const [roomID, setRoomID] = useState('')
@@ -212,100 +206,6 @@ const App = () => {
       cancelTokenRef.current = null
     }
   }, [])
-
-  const toggleListening = useCallback(() => {
-    if (isListening) {
-      console.log('Stopping mic')
-      stopListening()
-    } else {
-      console.log('Starting mic')
-      startListening()
-    }
-  }, [isListening])
-
-  const sendAudioToWhisper = useCallback(
-    async (audioBlob: Blob) => {
-      const formData = new FormData()
-      formData.append('file', audioBlob, 'audio.wav')
-
-      try {
-        const response = await axios.post(`${completionEndpoint}/${AGENT_ID}/whisper`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-
-        const transcribedText = response.data.text
-        await processInput(transcribedText)
-      } catch (error) {
-        console.error('Error transcribing audio:', error)
-        setError('Error transcribing audio. Please try again.')
-      }
-    },
-    [processInput]
-  )
-
-  const startListening = useCallback(() => {
-    setIsListening(true)
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        if (!audioContextRef.current) {
-          audioContextRef.current = new (window.AudioContext ||
-            (window as any).webkitAudioContext)()
-        }
-
-        if (!analyserRef.current) {
-          analyserRef.current = audioContextRef.current.createAnalyser()
-          analyserRef.current.fftSize = 512
-        }
-
-        if (microphoneRef.current) {
-          microphoneRef.current.disconnect()
-        }
-
-        microphoneRef.current = audioContextRef.current.createMediaStreamSource(stream)
-        microphoneRef.current.connect(analyserRef.current)
-
-        mediaRecorderRef.current = new MediaRecorder(stream)
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          console.log('Data available:', event.data)
-          chunksRef.current.push(event.data)
-        }
-        mediaRecorderRef.current.onstop = () => {
-          console.log('Recorder stopped')
-          const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' })
-          sendAudioToWhisper(audioBlob)
-          chunksRef.current = []
-        }
-        mediaRecorderRef.current.start()
-      })
-      .catch((err) => {
-        console.error('Error accessing microphone:', err)
-        setIsListening(false)
-        setError('Error accessing microphone. Please check your permissions and try again.')
-      })
-  }, [sendAudioToWhisper])
-
-  const stopListening = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop()
-    }
-    console.log('Stopping listening')
-    setIsListening(false)
-  }, [])
-
-  useEffect(() => {
-    console.log('isListening', isListening)
-    console.log('chunksRef.current', chunksRef.current)
-
-    if (!isListening && chunksRef.current.length > 0) {
-      console.log('Sending audio to Whisper')
-      const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' })
-      sendAudioToWhisper(audioBlob)
-      chunksRef.current = []
-    }
-  }, [isListening, sendAudioToWhisper])
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
