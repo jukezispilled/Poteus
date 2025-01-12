@@ -11,6 +11,7 @@ export default {
       fontFamily: {
         sans: ['Inter', ...fontFamily.sans],
         mono: ['JetBrains Mono', ...fontFamily.mono],
+        custom: ['CustomFont', 'sans-serif'],
       },
       colors: {
         'gray': colors.neutral,

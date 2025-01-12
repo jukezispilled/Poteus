@@ -1,9 +1,35 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { Window, styleReset } from 'react95';
+import original from 'react95/dist/themes/original';
+import ms_sans_serif from 'react95/dist/fonts/ms_sans_serif.woff2';
+import ms_sans_serif_bold from 'react95/dist/fonts/ms_sans_serif_bold.woff2';
+
 import ReactDOM from 'react-dom/client'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
+import MarqueeComponent from './Marquee';
 
 import { SimliClient } from './SimliClient'
+
+const GlobalStyles = createGlobalStyle`
+  ${styleReset}
+  @font-face {
+    font-family: 'ms_sans_serif';
+    src: url('${ms_sans_serif}') format('woff2');
+    font-weight: 400;
+    font-style: normal
+  }
+  @font-face {
+    font-family: 'ms_sans_serif';
+    src: url('${ms_sans_serif_bold}') format('woff2');
+    font-weight: bold;
+    font-style: normal
+  }
+  body {
+    font-family: 'ms_sans_serif';
+  }
+`;
 
 const sk = import.meta.env.VITE_SIMLI_API_KEY
 const e11 = import.meta.env.VITE_ELEVENLABS_API_KEY
@@ -12,9 +38,9 @@ const completionEndpoint = import.meta.env?.VITE_COMPLETION_ENDPOINT || 'http://
 
 import './styles.css'
 
-const AGENT_ID = 'TrollDetective.Exe' // this comes from the agentId output from running the Eliza framework, it likely will be in uuid format, i.e. '123e4567-e89b-12d3-a456-426614174000'
-const SIMLI_FACE_ID = '12fc2352-07ad-445e-ab52-7a7d349a44ae'
-const ELEVENLABS_VOICE_ID = 'GBv7mTt0atIp3Br8iCZE'
+const AGENT_ID = 'f9473937-3a5e-0c90-ba50-7c075effad23' // this comes from the agentId output from running the Eliza framework, it likely will be in uuid format, i.e. '123e4567-e89b-12d3-a456-426614174000'
+const SIMLI_FACE_ID = '1373a78a-29a9-4ebf-8249-c1639f6301ba'
+const ELEVENLABS_VOICE_ID = 'QVdfyuce5vtARk1420LS'
 
 const simliClient = new SimliClient()
 
@@ -293,64 +319,98 @@ const App = () => {
 
   return (
     <>
-      <div className='flex h-screen w-full flex-col items-center justify-center font-mono text-white'>
-        <div className='relative w-[30%]'>
-          <video
-            ref={videoRef}
-            id='simli_video'
-            autoPlay
-            playsInline
-            className='size-full object-cover'
-          ></video>
+      <GlobalStyles />
+      <ThemeProvider theme={original}>
+      <div className='flex h-screen w-full flex-col items-center justify-center font-mono text-white bg-[#C0C0C0]'>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className='absolute inset-0 w-full h-full object-cover'
+        >
+          <source src='/bg.mp4' type='video/mp4' />
+        </video>
+        <div className={`relative w-[30%] ${startWebRTC && !isConnecting ? '' : 'hidden'}`}>
+          <Window>
+            <video
+              ref={videoRef}
+              id='simli_video'
+              autoPlay
+              playsInline
+              className='size-full object-cover'
+            ></video>
+          </Window>
           <audio ref={audioRef} id='simli_audio' autoPlay></audio>
         </div>
         {startWebRTC && !isConnecting ? (
           <>
+            <div className='w-screen absolute top-0'>
+              <MarqueeComponent />
+            </div>
+            <a href="https://x.com/YEIwtf" className='absolute bottom-4 right-4 text-black'>
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 50 50">
+                <path d="M 11 4 C 7.1456661 4 4 7.1456661 4 11 L 4 39 C 4 42.854334 7.1456661 46 11 46 L 39 46 C 42.854334 46 46 42.854334 46 39 L 46 11 C 46 7.1456661 42.854334 4 39 4 L 11 4 z M 11 6 L 39 6 C 41.773666 6 44 8.2263339 44 11 L 44 39 C 44 41.773666 41.773666 44 39 44 L 11 44 C 8.2263339 44 6 41.773666 6 39 L 6 11 C 6 8.2263339 8.2263339 6 11 6 z M 13.085938 13 L 22.308594 26.103516 L 13 37 L 15.5 37 L 23.4375 27.707031 L 29.976562 37 L 37.914062 37 L 27.789062 22.613281 L 36 13 L 33.5 13 L 26.660156 21.009766 L 21.023438 13 L 13.085938 13 z M 16.914062 15 L 19.978516 15 L 34.085938 35 L 31.021484 35 L 16.914062 15 z"></path>
+              </svg>
+            </a>
             {/* {chatgptText && <p className='text-center'>{chatgptText}</p>} */}
             <form
               onSubmit={handleSubmit}
-              className='fixed bottom-4 mx-4 w-full max-w-md space-y-4 px-4'
+              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex justify-center w-full max-w-md space-x-2 px-4"
             >
-              <div className='flex w-full items-center space-x-2'>
-                <input
-                  type='text'
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder='Enter your message'
-                  className='grow rounded border border-white bg-black px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white'
-                />
-                <button
-                  type='submit'
-                  disabled={isLoading || !inputText.trim()}
-                  className='rounded bg-white px-3 py-1 text-3xl text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50'
-                >
-                  {isLoading ? '➡️' : '➡️'}
-                </button>
-                <button
-                  type='button'
-                  onClick={toggleListening}
-                  className='rounded bg-blue-500 px-3 py-1 text-2xl text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black'
-                >
-                  {isListening ? '🔴' : '🎤'}
-                </button>
+              <div className="flex items-center space-x-2">
+                <Window>
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder="talk to ye"
+                    className="grow bg-black px-3 py-2 text-white outline-none focus:outline-none focus:ring-0"
+                  />
+                </Window>
+                <Window>
+                  <button
+                    type="submit"
+                    disabled={isLoading || !inputText.trim()}
+                    className="bg-white px-3 py-2 font-bold text-black transition-colors focus:outline-none disabled:opacity-50"
+                  >
+                    {isLoading ? 'Send' : 'Send'}
+                  </button>
+                </Window>
               </div>
             </form>
           </>
         ) : (
           <>
             {isConnecting && (
-              <p className='fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'>
+              <p className='fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white'>
                 Connecting...
               </p>
             )}
             {!isConnecting && (
-              <button
-                disabled={isConnecting}
-                onClick={handleStart}
-                className='fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded bg-white px-4 py-2 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black'
-              >
-                Start
-              </button>
+              <div className='h-screen w-screen flex flex-col justify-center items-center relative bg-black'>
+                <div className='z-10 group rounded-full border border-black/5 bg-neutral-100 text-base md:text-lg lg:text-xl text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800 mb-8 md:mb-16'>
+                  <div className="inline-flex items-center justify-center px-4 py-1 transition ease-out text-neutral-600">
+                    <span>version 0.1</span>
+                  </div>
+                </div>
+
+                <div className="z-10 text-white font-custom text-xl md:text-3xl lg:text-5xl xl:text-6xl mb-4">
+                  Kan(ye) Intelligence
+                </div>
+
+                <button
+                  disabled={isConnecting}
+                  onClick={handleStart}
+                  className="z-10 bg-white text-black font-semibold px-6 py-2 rounded-full mt-4 md:mt-10 md:text-xl lg:text-3xl md:hover:bg-neutral-600 md:hover:text-white transition duration-100"
+                >
+                  access
+                </button>
+
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="bg-repeat w-full h-full opacity-50" style={{ backgroundImage: "url('/k2.gif')" }}></div>
+                </div>
+              </div>
             )}
           </>
         )}
@@ -369,6 +429,7 @@ const App = () => {
           zIndex: -1000,
         }}
       />
+    </ThemeProvider>
     </>
   )
 }

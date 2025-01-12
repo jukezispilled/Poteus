@@ -12,6 +12,12 @@
   }
 }
 
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/public/k.ttf') format('truetype');
+  /* Other font formats (woff, woff2, etc.) could also be added here */
+}
+
 /* Disable text selection */
 .disable-select {
   -webkit-touch-callout: none; /* iOS Safari */
