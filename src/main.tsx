@@ -58,6 +58,15 @@ const App = () => {
   // TODO: populate these from localStorage if roomid and useruuid are set, otherwise generate a random uuid
   const [roomID, setRoomID] = useState('')
   const [userUUID, setUserUUID] = useState('')
+  const [copied, setCopied] = useState(false);
+  const ca = 'XXXXXXXXXXXXXXX';
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(ca).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
+    });
+  };
 
   useEffect(() => {
     const storedRoomID = localStorage.getItem('roomID')
@@ -290,6 +299,15 @@ const App = () => {
                 className="h-screen w-screen flex flex-col justify-center items-center relative"
                 style={{ backgroundImage: 'url(/b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
               >
+                <div className='absolute top-4 left-1/2 -translate-x-1/2 bg-white text-[#D1B28E] z-10 px-2 py-1.5 rounded-full'>
+                <button
+                  onClick={handleCopy}
+                  className='p-1.5 text-xs md:text-base m-1 bg-[#D1B28E] font-mono rounded-full text-white'
+                >
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+                <span className='p-1 text-[9px] md:text-base font-mono'>{ca}</span>
+                </div>
                 <div className='absolute h-full w-full bg-black opacity-60'></div>
                 <div className='z-10 group rounded-full border border-black/5 bg-neutral-100 text-base md:text-lg lg:text-xl text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800 mb-6 md:mb-12'>
                   <div className="inline-flex items-center justify-center px-4 py-1 transition ease-out text-[#D1B28E]">
