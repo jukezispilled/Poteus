@@ -59,7 +59,7 @@ const App = () => {
   const [roomID, setRoomID] = useState('')
   const [userUUID, setUserUUID] = useState('')
   const [copied, setCopied] = useState(false);
-  const ca = 'XXXXXXXXXX';
+  const ca = 'XXXXXXXXX';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(ca).then(() => {
