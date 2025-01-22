@@ -266,7 +266,7 @@ const App = () => {
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="talk to poteus"
+                    placeholder="talk to doneus"
                     className="grow bg-black px-3 py-2 text-white outline-none focus:outline-none focus:ring-0"
                   />
                 </Window>
@@ -286,7 +286,7 @@ const App = () => {
           <>
             {isConnecting && (
               <p className='fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white'>
-                Uploading Poteus...
+                Uploading Doneus...
               </p>
             )}
             {!isConnecting && (
